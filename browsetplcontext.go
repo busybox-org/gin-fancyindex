@@ -16,9 +16,9 @@ import (
 func (f *FileServer) directoryListing(files []os.FileInfo, canGoUp bool, root, urlPath string) browseTemplateContext {
 	var dirCount, fileCount int
 	var fileInfos []fileInfo
-	for _, f := range files {
-		name := f.Name()
-		isDir := f.IsDir() || isSymlinkTargetDir(f, root, urlPath)
+	for _, file := range files {
+		name := file.Name()
+		isDir := file.IsDir() || isSymlinkTargetDir(file, root, urlPath)
 
 		// add the slash after the escape of path to avoid escaping the slash as well
 		if isDir {
@@ -28,10 +28,10 @@ func (f *FileServer) directoryListing(files []os.FileInfo, canGoUp bool, root, u
 			fileCount++
 		}
 
-		size := f.Size()
-		fileIsSymlink := isSymlink(f)
+		size := file.Size()
+		fileIsSymlink := isSymlink(file)
 		if fileIsSymlink {
-			_path := sanitizedPathJoin(root, path.Join(urlPath, f.Name()))
+			_path := sanitizedPathJoin(root, path.Join(urlPath, file.Name()))
 			fileInfo, err := os.Stat(_path)
 			if err == nil {
 				size = fileInfo.Size()
@@ -46,8 +46,8 @@ func (f *FileServer) directoryListing(files []os.FileInfo, canGoUp bool, root, u
 			Name:      name,
 			Size:      size,
 			URL:       fmt.Sprintf("%s?timestamp=%d", u.String(), time.Now().Unix()),
-			ModTime:   f.ModTime().UTC(),
-			Mode:      f.Mode(),
+			ModTime:   file.ModTime().UTC(),
+			Mode:      file.Mode(),
 		})
 	}
 	name, _ := url.PathUnescape(urlPath)
@@ -263,7 +263,7 @@ const (
 
 // isSymlink return true if f is a symbolic link
 func isSymlink(f os.FileInfo) bool {
-	return f.Mode()&os.ModeSymlink != 0
+	return f.Mode()&os.ModeSymlink == os.ModeSymlink
 }
 
 // isSymlinkTargetDir returns true if f's symbolic link target

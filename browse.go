@@ -13,9 +13,7 @@ import (
 	"path"
 	"path/filepath"
 	"sort"
-	"strconv"
 	"strings"
-	"time"
 )
 
 //go:embed index.html
@@ -159,21 +157,7 @@ func (f *FileServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func Browser(root string) http.Handler {
-	indexTemplate, err := template.New("index").Funcs(template.FuncMap{
-		"formatSize": func(s int64) string {
-			prefixes := []string{"", "K", "M", "G", "T"}
-			prefix := 0
-			for s > 1000 && prefix < len(prefixes)-1 {
-				s /= 1000
-				prefix++
-			}
-
-			return strconv.FormatInt(s, 10) + " " + prefixes[prefix] + "B"
-		},
-		"formatTime": func(t time.Time) string {
-			return t.Format("2006-01-02 15:04:05 -0700 MST")
-		},
-	}).Parse(indexTemplateSource)
+	indexTemplate, err := template.New("index").Parse(indexTemplateSource)
 	if err != nil {
 		panic(err)
 	}
