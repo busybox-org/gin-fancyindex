@@ -10,7 +10,7 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/sirupsen/logrus"
-	fancyindex "github.com/xmapst/gin-fancyindex"
+	"github.com/xmapst/gin-fancyindex"
 	"net/http"
 	"os"
 	"os/signal"
