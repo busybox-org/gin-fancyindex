@@ -2,8 +2,10 @@ name: PublishToDockerhub
 
 on:
   push:
-    branches:
-      - 'main'
+    tags:
+      - 'v*'
+    #branches:
+    #  - 'main'
 
 jobs:
   docker:
@@ -33,4 +35,4 @@ jobs:
           push: true
           tags: |
             xmapst/gin-fancyindex:latest
-            xmapst/gin-fancyindex:${{ env.SHA }}
+            xmapst/gin-fancyindex:${{ github.ref }}
