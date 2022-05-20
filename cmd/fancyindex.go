@@ -22,6 +22,7 @@ import (
 )
 
 type Config struct {
+	Addr string `envconfig:"ADDR" default:""`
 	Port string `envconfig:"PORT" default:"8080"`
 	Root string `envconfig:"ROOT" default:"/share"`
 	Auth bool   `envconfig:"AUTH" default:"false"`
@@ -61,7 +62,7 @@ func main() {
 
 	logrus.Infoln("Starting server...")
 	srv := &http.Server{
-		Addr: fmt.Sprintf(":%s", conf.Port),
+		Addr: fmt.Sprintf("%s:%s", conf.Addr, conf.Port),
 		// Good practice to set timeouts to avoid Slowloris attacks.
 		WriteTimeout: time.Second * 60,
 		ReadTimeout:  time.Second * 60,
