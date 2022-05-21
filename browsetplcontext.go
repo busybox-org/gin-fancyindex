@@ -32,7 +32,7 @@ func (f *FileServer) directoryListing(files []os.FileInfo, canGoUp bool, root, u
 		fileIsSymlink := isSymlink(file)
 		if fileIsSymlink {
 			_path := sanitizedPathJoin(root, path.Join(urlPath, file.Name()))
-			fileInfo, err := os.Stat(_path)
+			fileInfo, err := os.Lstat(_path)
 			if err == nil {
 				size = fileInfo.Size()
 			}

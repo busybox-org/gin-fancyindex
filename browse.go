@@ -20,6 +20,7 @@ import (
 var indexTemplateSource string
 
 type FileServer struct {
+	relativePath  string
 	fileSystem    fs.FS
 	indexTemplate *template.Template
 }
@@ -27,12 +28,14 @@ type FileServer struct {
 func (f *FileServer) serveDir(dir fs.File, s fs.FileInfo, w http.ResponseWriter, r *http.Request) {
 	d, ok := dir.(fs.ReadDirFile)
 	if !ok {
+		w.WriteHeader(http.StatusInternalServerError)
 		_, _ = w.Write([]byte("file does not readdir"))
 		return
 	}
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	listing, err := f.loadDirectoryContents(d, s.Name(), path.Clean(r.URL.Path))
 	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
 		_, _ = w.Write([]byte("could not load directory contents"))
 		return
 	}
@@ -99,7 +102,17 @@ func (f *FileServer) browseApplyQueryParams(w http.ResponseWriter, r *http.Reque
 	listing.applySortAndLimit(sortParam, orderParam, limitParam, offsetParam)
 }
 
+func (f *FileServer) init(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet && r.Method != http.MethodHead {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+	r.URL.Path = strings.TrimPrefix(r.URL.Path, f.relativePath)
+	r.URL.Path = path.Join("/", r.URL.Path)
+}
+
 func (f *FileServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	f.init(w, r)
 	_path := r.URL.Path
 	if len(_path) > 0 && _path[0] == '/' {
 		_path = _path[1:]
@@ -114,12 +127,12 @@ func (f *FileServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	file, err := f.fileSystem.Open(_path)
 	if err != nil {
 		if errors.Is(err, fs.ErrNotExist) {
-			w.WriteHeader(404)
+			w.WriteHeader(http.StatusNotFound)
 			_, _ = w.Write([]byte("file not found"))
 			return
 		}
 		if errors.Is(err, fs.ErrPermission) {
-			w.WriteHeader(403)
+			w.WriteHeader(http.StatusForbidden)
 			_, _ = w.Write([]byte("permission denied"))
 			return
 		}
@@ -134,6 +147,8 @@ func (f *FileServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	s, err := file.Stat()
 	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte("could not stat file"))
 		panic(err)
 	}
 
@@ -144,6 +159,7 @@ func (f *FileServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	rs, ok := file.(io.ReadSeeker)
 	if !ok {
+		w.WriteHeader(http.StatusInternalServerError)
 		_, _ = w.Write([]byte("fs file does not support Seek"))
 		return
 	}
@@ -156,12 +172,16 @@ func (f *FileServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	http.ServeContent(w, r, s.Name(), s.ModTime(), rs)
 }
 
-func Browser(root string) http.Handler {
+func New(relativePath, root string) http.Handler {
+	if !strings.HasPrefix(relativePath, "/") {
+		relativePath = "/" + relativePath
+	}
 	indexTemplate, err := template.New("index").Parse(indexTemplateSource)
 	if err != nil {
 		panic(err)
 	}
 	h := &FileServer{
+		relativePath:  relativePath,
 		indexTemplate: indexTemplate,
 	}
 	h.fileSystem = os.DirFS(h.calculateAbsolutePath(root))

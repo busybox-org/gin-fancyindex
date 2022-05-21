@@ -5,6 +5,7 @@ Develop a compact and lightweight file directory index server based on gin
 
 ## Parameters
 + `PORT`: the port to listen on. default: 8080
++ `RELATIVE_PATH`: the path to serve. default: `/`
 + `ROOT`: the root directory to serve. default: `/share`
 + `AUTH`: enable authentication. default: false
 + `USER`: the username to use for authentication. default: `admin`
