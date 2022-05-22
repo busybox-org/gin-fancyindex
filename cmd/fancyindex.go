@@ -39,10 +39,7 @@ func init() {
 }
 
 func main() {
-	ok, err := internal.PathExists(conf.Root)
-	if err != nil {
-		logrus.Fatal(err)
-	}
+	ok := internal.FileOrPathExist(conf.Root)
 	if !ok {
 		logrus.Fatal("root path not found")
 	}
@@ -58,7 +55,7 @@ func main() {
 	}
 	go func() {
 		logrus.Infof("Server is running on %s", srv.Addr)
-		if err = srv.ListenAndServe(); err != nil {
+		if err := srv.ListenAndServe(); err != nil {
 			logrus.Error(err)
 		}
 	}()
@@ -68,7 +65,7 @@ func main() {
 	<-c
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*15)
 	defer cancel()
-	err = srv.Shutdown(ctx)
+	err := srv.Shutdown(ctx)
 	if err != nil {
 		logrus.Error(err)
 		os.Exit(255)

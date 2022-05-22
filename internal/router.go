@@ -2,11 +2,16 @@ package internal
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"net/http"
+	"os"
+	"path"
+	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -30,6 +35,7 @@ func Router(conf *Config) *gin.Engine {
 	e := &Engine{
 		gin.New(),
 	}
+	e.MaxMultipartMemory = 32 << 20 // 32 MiB
 	e.Use(
 		gin.Recovery(),
 		gzip.Gzip(gzip.DefaultCompression),
@@ -64,11 +70,42 @@ func Router(conf *Config) *gin.Engine {
 			return string(bs) + "\n"
 		}),
 	)
+	// no auth
+	e.StaticFS(conf.RelativePath, conf.Root, conf.Auth)
 	if conf.Auth {
-		e.Use(gin.BasicAuth(gin.Accounts{
+		g := e.Group("/", gin.BasicAuth(gin.Accounts{
 			conf.User: conf.Pass,
 		}))
+		{
+			// upload filepath
+			g.POST("/*filepath", func(c *gin.Context) {
+				c.Request.URL.Path = strings.TrimPrefix(c.Request.URL.Path, conf.RelativePath)
+				c.Request.URL.Path = path.Join("/", c.Request.URL.Path)
+				filePath := filepath.Join(conf.Root, path.Clean(c.Request.URL.Path))
+				if err := saveFiles(c, filePath); err != nil {
+					c.String(http.StatusInternalServerError, err.Error())
+					return
+				}
+				e.HandleContext(c)
+			})
+			// delete filepath
+			g.DELETE("/*filepath", func(c *gin.Context) {
+				c.Request.URL.Path = strings.TrimPrefix(c.Request.URL.Path, conf.RelativePath)
+				c.Request.URL.Path = path.Join("/", c.Request.URL.Path)
+				filePath := filepath.Join(conf.Root, path.Clean(c.Request.URL.Path))
+				if !FileOrPathExist(filePath) {
+					c.String(http.StatusNotFound, fmt.Sprintf("%s not found", filePath))
+					return
+				}
+				err := os.RemoveAll(filePath)
+				if err != nil {
+					c.String(http.StatusInternalServerError, err.Error())
+					return
+				}
+				c.Request.URL.Path = "/"
+				e.HandleContext(c)
+			})
+		}
 	}
-	e.StaticFS(conf.RelativePath, conf.Root)
 	return e.Engine
 }

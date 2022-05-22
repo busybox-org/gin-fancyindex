@@ -52,6 +52,7 @@ func (f *FileServer) directoryListing(files []os.FileInfo, canGoUp bool, root, u
 	}
 	name, _ := url.PathUnescape(urlPath)
 	return browseTemplateContext{
+		Auth:      f.auth,
 		Timestamp: time.Now().Unix(),
 		Name:      path.Base(name),
 		Path:      urlPath,
@@ -64,6 +65,9 @@ func (f *FileServer) directoryListing(files []os.FileInfo, canGoUp bool, root, u
 
 // browseTemplateContext provides the template context for directory listings.
 type browseTemplateContext struct {
+	// The authorizer for the current request.
+	Auth bool `json:"Auth"`
+
 	// The timestamp of the current time.
 	Timestamp int64 `json:"Timestamp"`
 

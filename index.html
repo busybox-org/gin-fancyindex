@@ -324,6 +324,9 @@
             <span class="meta-item">(of which only <b>{{.Limit}}</b> are displayed)</span>
             {{- end}}
             <span class="meta-item"><input type="text" placeholder="filter" id="filter" onkeyup='filter()'></span>
+            {{- if .Auth}}
+
+            {{- end}}
         </div>
     </div>
     <div class="listing">
@@ -387,7 +390,7 @@
             <tr class="file">
                 <td></td>
                 <td>
-                    <a href="{{html .URL}}">
+                    <a href='{{html .URL}}'>
                         {{- if .IsDir}}
                         <svg width="1.5em" height="1em" version="1.1" viewBox="0 0 317 259"><use xlink:href="#folder{{if .IsSymlink}}-shortcut{{end}}"></use></svg>
                         {{- else}}
@@ -401,7 +404,7 @@
                 {{- else}}
                 <td data-order="{{.Size}}">{{.HumanSize}}</td>
                 {{- end}}
-                <td class="hideable"><time datetime="{{.HumanModTime "2006-01-02T15:04:05Z"}}">{{.HumanModTime "01/02/2006 03:04:05 PM -07:00"}}</time></td>
+                <td class="hideable"><time datetime='{{.HumanModTime "2006-01-02T15:04:05Z"}}'>{{.HumanModTime "01/02/2006 03:04:05 PM -07:00"}}</time></td>
                 <td class="hideable"></td>
             </tr>
             {{- end}}
