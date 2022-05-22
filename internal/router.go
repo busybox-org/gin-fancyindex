@@ -83,9 +83,11 @@ func Router(conf *Config) *gin.Engine {
 				c.Request.URL.Path = path.Join("/", c.Request.URL.Path)
 				filePath := filepath.Join(conf.Root, path.Clean(c.Request.URL.Path))
 				if err := saveFiles(c, filePath); err != nil {
+					logrus.Error(err)
 					c.String(http.StatusInternalServerError, err.Error())
 					return
 				}
+				c.Request.Method = http.MethodGet
 				e.HandleContext(c)
 			})
 			// delete filepath
@@ -102,6 +104,7 @@ func Router(conf *Config) *gin.Engine {
 					c.String(http.StatusInternalServerError, err.Error())
 					return
 				}
+				c.Request.Method = http.MethodGet
 				c.Request.URL.Path = "/"
 				e.HandleContext(c)
 			})

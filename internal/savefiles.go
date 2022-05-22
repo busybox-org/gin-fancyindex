@@ -34,7 +34,7 @@ func saveFiles(c *gin.Context, filePath string) error {
 
 	for _, f := range files {
 		wg.Add(1)
-		go func(file *multipart.FileHeader) {
+		go func(file *multipart.FileHeader, filePath string) {
 			defer wg.Done()
 			//file.Filename does not contain the directory path
 			// RFC 7578, Section 4.2 requires that if a filename is provided, the
@@ -53,24 +53,23 @@ func saveFiles(c *gin.Context, filePath string) error {
 			}
 
 			file.Filename = fileName
-			_filePath := filePath
 			// Default save path
 			uploadFileName := filepath.Base(file.Filename)
 			uploadFPath := filepath.Dir(file.Filename)
 			// Process folder upload
 			if uploadFPath != "." {
-				_filePath = filepath.Join(filePath, uploadFPath)
-				if !FileOrPathExist(_filePath) {
-					_ = os.MkdirAll(_filePath, os.ModePerm)
+				filePath = filepath.Join(filePath, uploadFPath)
+				if !FileOrPathExist(filePath) {
+					_ = os.MkdirAll(filePath, os.ModePerm)
 				}
 			}
 
 			// save file to local in _tp
-			err = c.SaveUploadedFile(file, filepath.Join(_filePath, uploadFileName))
+			err = c.SaveUploadedFile(file, filepath.Join(filePath, uploadFileName))
 			if err != nil {
 				errs = multierror.Append(errs, fmt.Errorf(file.Filename, err.Error()))
 			}
-		}(f)
+		}(f, filePath)
 	}
 	wg.Wait()
 	if errs != nil {
