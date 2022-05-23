@@ -71,10 +71,10 @@ func Router(conf *Config) *gin.Engine {
 		}),
 	)
 	// no auth
-	e.StaticFS(conf.RelativePath, conf.Root, conf.Auth)
+	e.StaticFS(conf.RelativePath, conf.Root)
 	if conf.Auth {
 		g := e.Group("/", gin.BasicAuth(gin.Accounts{
-			conf.User: conf.Pass,
+			conf.AuthUser: conf.AuthPass,
 		}))
 		{
 			// upload filepath

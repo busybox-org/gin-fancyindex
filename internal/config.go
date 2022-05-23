@@ -6,6 +6,6 @@ type Config struct {
 	RelativePath string `envconfig:"RELATIVE_PATH" default:"/"`
 	Root         string `envconfig:"ROOT" default:"/share"`
 	Auth         bool   `envconfig:"AUTH" default:"false"`
-	User         string `envconfig:"USER" default:"admin"`
-	Pass         string `envconfig:"PASS" default:"admin"`
+	AuthUser     string `envconfig:"AUTH_USER" default:"admin"`
+	AuthPass     string `envconfig:"AUTH_PASS" default:"Admin123"`
 }

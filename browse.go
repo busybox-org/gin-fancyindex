@@ -20,7 +20,6 @@ import (
 var indexTemplateSource string
 
 type FileServer struct {
-	auth          bool
 	relativePath  string
 	fileSystem    fs.FS
 	indexTemplate *template.Template
@@ -173,7 +172,7 @@ func (f *FileServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	http.ServeContent(w, r, s.Name(), s.ModTime(), rs)
 }
 
-func New(relativePath, root string, auth bool) http.Handler {
+func New(relativePath, root string) http.Handler {
 	if !strings.HasPrefix(relativePath, "/") {
 		relativePath = "/" + relativePath
 	}
@@ -182,7 +181,6 @@ func New(relativePath, root string, auth bool) http.Handler {
 		panic(err)
 	}
 	h := &FileServer{
-		auth:          auth,
 		relativePath:  relativePath,
 		indexTemplate: indexTemplate,
 	}

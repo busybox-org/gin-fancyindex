@@ -7,11 +7,11 @@ import (
 	"strings"
 )
 
-func (e *Engine) StaticFS(relativePath, root string, auth bool) {
+func (e *Engine) StaticFS(relativePath, root string) {
 	if strings.Contains(relativePath, ":") || strings.Contains(relativePath, "*") {
 		panic("URL parameters can not be used when serving a static folder")
 	}
-	handler := e.createStaticHandler(relativePath, root, auth)
+	handler := e.createStaticHandler(relativePath, root)
 	urlPattern := path.Join(relativePath, "/*filepath")
 
 	// Register GET and HEAD handlers
@@ -19,8 +19,8 @@ func (e *Engine) StaticFS(relativePath, root string, auth bool) {
 	e.HEAD(urlPattern, handler)
 }
 
-func (e *Engine) createStaticHandler(relativePath, root string, auth bool) gin.HandlerFunc {
-	fileServer := fancyindex.New(relativePath, root, auth)
+func (e *Engine) createStaticHandler(relativePath, root string) gin.HandlerFunc {
+	fileServer := fancyindex.New(relativePath, root)
 	return func(c *gin.Context) {
 		fileServer.ServeHTTP(c.Writer, c.Request)
 	}

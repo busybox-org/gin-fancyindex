@@ -19,7 +19,7 @@ func (f *FileServer) directoryListing(files []os.FileInfo, canGoUp bool, root, u
 	for _, file := range files {
 		name := file.Name()
 		isDir := file.IsDir() || isSymlinkTargetDir(file, root, urlPath)
-
+		
 		// add the slash after the escape of path to avoid escaping the slash as well
 		if isDir {
 			name += "/"
@@ -27,7 +27,7 @@ func (f *FileServer) directoryListing(files []os.FileInfo, canGoUp bool, root, u
 		} else {
 			fileCount++
 		}
-
+		
 		size := file.Size()
 		fileIsSymlink := isSymlink(file)
 		if fileIsSymlink {
@@ -37,9 +37,9 @@ func (f *FileServer) directoryListing(files []os.FileInfo, canGoUp bool, root, u
 				size = fileInfo.Size()
 			}
 		}
-
+		
 		u := url.URL{Path: "./" + name}
-
+		
 		fileInfos = append(fileInfos, fileInfo{
 			IsDir:     isDir,
 			IsSymlink: fileIsSymlink,
@@ -52,7 +52,6 @@ func (f *FileServer) directoryListing(files []os.FileInfo, canGoUp bool, root, u
 	}
 	name, _ := url.PathUnescape(urlPath)
 	return browseTemplateContext{
-		Auth:      f.auth,
 		Timestamp: time.Now().Unix(),
 		Name:      path.Base(name),
 		Path:      urlPath,
@@ -65,38 +64,35 @@ func (f *FileServer) directoryListing(files []os.FileInfo, canGoUp bool, root, u
 
 // browseTemplateContext provides the template context for directory listings.
 type browseTemplateContext struct {
-	// The authorizer for the current request.
-	Auth bool `json:"Auth"`
-
 	// The timestamp of the current time.
 	Timestamp int64 `json:"Timestamp"`
-
+	
 	// The name of the directory (the last element of the path).
 	Name string `json:"Name"`
-
+	
 	// The full path of the request.
 	Path string `json:"Path"`
-
+	
 	CanGoUp bool `json:"CanGoUp"`
-
+	
 	// The items (files and folders) in the path.
 	Items []fileInfo `json:"Items,omitempty"`
-
+	
 	// If ≠0 then Items starting from that many elements.
 	Offset int `json:"Offset,omitempty"`
-
+	
 	// If ≠0 then Items have been limited to that many elements.
 	Limit int `json:"Limit,omitempty"`
-
+	
 	// The number of directories in the listing.
 	NumDirs int `json:"NumDirs"`
-
+	
 	// The number of files (items that aren't directories) in the listing.
 	NumFiles int `json:"NumFiles"`
-
+	
 	// Sort column used
 	Sort string `json:"Sort,omitempty"`
-
+	
 	// Sorting order
 	Order string `json:"Order,omitempty"`
 }
@@ -107,7 +103,7 @@ func (l browseTemplateContext) Breadcrumbs() []crumb {
 	if len(l.Path) == 0 {
 		return []crumb{}
 	}
-
+	
 	// skip trailing slash
 	lpath := l.Path
 	if lpath[len(lpath)-1] == '/' {
@@ -130,7 +126,7 @@ func (l browseTemplateContext) Breadcrumbs() []crumb {
 func (l *browseTemplateContext) applySortAndLimit(sortParam, orderParam, limitParam string, offsetParam string) {
 	l.Sort = sortParam
 	l.Order = orderParam
-
+	
 	if l.Order == "desc" {
 		switch l.Sort {
 		case sortByName:
@@ -154,7 +150,7 @@ func (l *browseTemplateContext) applySortAndLimit(sortParam, orderParam, limitPa
 			sort.Sort(byTime(*l))
 		}
 	}
-
+	
 	if offsetParam != "" {
 		offset, _ := strconv.Atoi(offsetParam)
 		if offset > 0 && offset <= len(l.Items) {
@@ -162,10 +158,10 @@ func (l *browseTemplateContext) applySortAndLimit(sortParam, orderParam, limitPa
 			l.Offset = offset
 		}
 	}
-
+	
 	if limitParam != "" {
 		limit, _ := strconv.Atoi(limitParam)
-
+		
 		if limit > 0 && limit <= len(l.Items) {
 			l.Items = l.Items[:limit]
 			l.Limit = limit
@@ -235,9 +231,9 @@ func (l bySize) Swap(i, j int) { l.Items[i], l.Items[j] = l.Items[j], l.Items[i]
 
 func (l bySize) Less(i, j int) bool {
 	const directoryOffset = -1 << 31 // = -math.MinInt32
-
+	
 	iSize, jSize := l.Items[i].Size, l.Items[j].Size
-
+	
 	// directory sizes depend on the file system; to
 	// provide a consistent experience, put them up front
 	// and sort them by name
@@ -250,7 +246,7 @@ func (l bySize) Less(i, j int) bool {
 	if l.Items[i].IsDir && l.Items[j].IsDir {
 		return strings.ToLower(l.Items[i].Name) < strings.ToLower(l.Items[j].Name)
 	}
-
+	
 	return iSize < jSize
 }
 
@@ -290,9 +286,9 @@ func sanitizedPathJoin(root, reqPath string) string {
 	if root == "" {
 		root = "."
 	}
-
+	
 	_path := filepath.Join(root, filepath.Clean("/"+reqPath))
-
+	
 	// filepath.Join also cleans the path, and cleaning strips
 	// the trailing slash, so we need to re-add it afterwards.
 	// if the length is 1, then it's a path to the root,
@@ -300,7 +296,7 @@ func sanitizedPathJoin(root, reqPath string) string {
 	if strings.HasSuffix(reqPath, "/") && len(reqPath) > 1 {
 		_path += separator
 	}
-
+	
 	return _path
 }
 
