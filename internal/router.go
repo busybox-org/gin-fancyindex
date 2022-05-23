@@ -66,7 +66,7 @@ func Router(conf *Config) *gin.Engine {
 	)
 	if conf.Auth {
 		e.Use(gin.BasicAuth(gin.Accounts{
-			conf.User: conf.Pass,
+			conf.AuthUser: conf.AuthPass,
 		}))
 	}
 	e.StaticFS(conf.RelativePath, conf.Root)

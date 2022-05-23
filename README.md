@@ -8,8 +8,8 @@ Develop a compact and lightweight file directory index server based on gin
 + `RELATIVE_PATH`: the path to serve. default: `/`
 + `ROOT`: the root directory to serve. default: `/share`
 + `AUTH`: enable authentication. default: false
-+ `USER`: the username to use for authentication. default: `admin`
-+ `PASS`: the password to use for authentication. default: `admin`
++ `AUTH_USER`: the username to use for authentication. default: `admin`
++ `AUTH_PASS`: the password to use for authentication. default: `admin`
 
 
 ## RUN
