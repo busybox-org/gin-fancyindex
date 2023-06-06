@@ -1,5 +1,5 @@
 #docker build --network host --rm -t xmapst/gin-fancyindex:latest -f Dockerfile .
-FROM golang:1.18 as builder
+FROM golang:latest as builder
 
 WORKDIR /go/src/gin-fancyindex
 COPY . /go/src/gin-fancyindex
