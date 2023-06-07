@@ -3,7 +3,6 @@ package fancyindex
 import (
 	_ "embed"
 	"errors"
-	"github.com/sirupsen/logrus"
 	"html/template"
 	"io"
 	"io/fs"
@@ -14,6 +13,8 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"github.com/sirupsen/logrus"
 )
 
 //go:embed index.html

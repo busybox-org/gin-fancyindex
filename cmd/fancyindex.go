@@ -3,10 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	_ "github.com/joho/godotenv/autoload"
-	"github.com/kelseyhightower/envconfig"
-	"github.com/sirupsen/logrus"
-	"github.com/xmapst/gin-fancyindex/internal"
 	"net/http"
 	"os"
 	"os/signal"
@@ -15,6 +11,11 @@ import (
 	"strings"
 	"syscall"
 	"time"
+
+	_ "github.com/joho/godotenv/autoload"
+	"github.com/kelseyhightower/envconfig"
+	"github.com/sirupsen/logrus"
+	"github.com/xmapst/gin-fancyindex/internal"
 )
 
 var conf = new(internal.Config)

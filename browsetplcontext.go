@@ -2,7 +2,6 @@ package fancyindex
 
 import (
 	"fmt"
-	"github.com/dustin/go-humanize"
 	"net/url"
 	"os"
 	"path"
@@ -11,6 +10,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/dustin/go-humanize"
 )
 
 func (f *FileServer) directoryListing(files []os.FileInfo, canGoUp bool, root, urlPath string) browseTemplateContext {

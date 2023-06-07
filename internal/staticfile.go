@@ -1,10 +1,11 @@
 package internal
 
 import (
-	"github.com/gin-gonic/gin"
-	fancyindex "github.com/xmapst/gin-fancyindex"
 	"path"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+	fancyindex "github.com/xmapst/gin-fancyindex"
 )
 
 func (e *Engine) StaticFS(relativePath, root string) {

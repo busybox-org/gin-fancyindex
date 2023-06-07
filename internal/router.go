@@ -2,12 +2,13 @@ package internal
 
 import (
 	"encoding/json"
+	"net/http"
+	"time"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"net/http"
-	"time"
 )
 
 type accessLog struct {
