@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/dustin/go-humanize v1.0.1
-	github.com/gin-contrib/cors v1.7.1
+	github.com/gin-contrib/cors v1.7.2
 	github.com/gin-contrib/gzip v1.0.1
 	github.com/gin-gonic/gin v1.9.1
 	github.com/joho/godotenv v1.5.1
